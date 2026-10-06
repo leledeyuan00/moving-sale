@@ -44,8 +44,8 @@
    "category": "家电",
    "price": 100,
    "origPrice": "",
-   "status": "available",
-   "statusNote": "",
+   "status": "sold",
+   "statusNote": "Kai",
    "note": "从别人那拿来的用了两次",
    "photos": [
     "photos/muwnvttthmsuu.jpg"
