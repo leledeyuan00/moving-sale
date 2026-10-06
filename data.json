@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuw9apd74viuw",
+   "name": "PS4 带一些游戏",
+   "category": "玩的",
+   "price": 5000,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "",
+   "photos": [
+    "photos/muw9amsfibgsu.jpg",
+    "photos/muw9amz8a65j7.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "ex1",
    "example": true,
    "name": "白色书桌 120×60cm",
