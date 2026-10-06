@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuw9mgjn0buow",
+   "name": "灰色小摇椅",
+   "category": "家具",
+   "price": 1000,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "地铁站自提1000，来我家自提免费……",
+   "photos": [
+    "photos/muw9ikoaqoyha.jpg",
+    "photos/muw9ikvqvm9to.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuw9apd74viuw",
    "name": "PS4 带一些游戏",
    "category": "玩的",
