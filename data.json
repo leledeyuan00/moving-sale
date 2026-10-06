@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuwsh1t1vf6af",
+   "name": "小床头柜",
+   "category": "家具",
+   "price": 200,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "很搭我的宜家床",
+   "photos": [
+    "photos/muwsgo1zl8lhk.jpg",
+    "photos/muwsgzhkucmsj.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwsapa56az4n",
    "name": "0.9m小单人床+床垫",
    "category": "家具",
