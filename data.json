@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imuwttvy7gralp",
+   "name": "瑜伽垫",
+   "category": "玩的",
+   "price": 0,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "从别人那里拿的，没用过几次",
+   "photos": [
+    "photos/muwtttb4hwape.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwsh1t1vf6af",
    "name": "小床头柜",
    "category": "家具",
