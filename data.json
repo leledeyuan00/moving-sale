@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuwnpmd0eku6i",
+   "name": "Nitori 大沙发",
+   "category": "家具",
+   "price": 4000,
+   "origPrice": 25000,
+   "status": "available",
+   "statusNote": "",
+   "note": "长1.74m 宽0.83m\n自提送",
+   "photos": [
+    "photos/muwnos8ueyogl.jpg",
+    "photos/muwnosglwehga.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwkd7rxb9sr7",
    "name": "宜家小台灯",
    "category": "家电",
