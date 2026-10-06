@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>搬家出物清单</title>
+<meta name="description" content="搬家出售物品：价格、照片、预定状态实时更新">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Noto+Sans+SC:wght@400;600&family=ZCOOL+QingKe+HuangYou&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main id="app"><div class="wrap"><p class="hint">正在载入物品清单…</p></div></main>
+<script>
+(function(){
+"use strict";
+/* ================= config & helpers ================= */
+const POLL_MS = 60000;
+const FULL_PX = 1600, THUMB_PX = 480;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const ls = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+const STATUS = {available:{t:'在售',c:'ok'}, reserved:{t:'已预定',c:'warn'}, sold:{t:'已售出',c:'sold'}};
+const RANK = {available:0, reserved:1, sold:2};
+const PHOTO_RE = /^photos\/[A-Za-z0-9_-]+\.jpg$/;
+const thumbOf = p => p.replace(/\.jpg$/, '_t.jpg');
+
+let state = {v:2, settings:{}, items:[]};
+let stateStr = '';
+const ui = {view: ls.get('view') || 'grid', status:'all', cat:'all', managing:false};
+let edits = 0;
+let conflict = false;
+
+/* admin (GitHub) */
+function guessRepo(){
+  const h = location.hostname;
+  if (h.endsWith('.github.io')) {
+    const owner = h.split('.')[0];
+    const seg = location.pathname.split('/').filter(Boolean)[0];
+    return {owner, repo: seg && !seg.includes('.') ? seg : h};
+  }
+  return {owner:'', repo:''};
+}
+let gh = null;  // {owner, repo, branch, token}
+try { gh = JSON.parse(ls.get('gh-admin') || 'null'); } catch(e){ gh = null; }
+let loadedSha = null;            // blob sha of data.json when admin loaded it
+let loadedPaths = new Set();     // photo files referenced at load time
+const pending = {};              // key -> {full, thumb} dataURLs not yet committed
+const local = {};                // committed path -> dataURL (shown before Pages finishes deploying)
+
+/* ================= image sources ================= */
+function phSVG(h, label, name){
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect width="800" height="600" fill="hsl('+h+' 32% 80%)"/><rect x="40" y="40" width="720" height="520" rx="10" fill="none" stroke="hsl('+h+' 28% 58%)" stroke-width="4" stroke-dasharray="16 12"/><text x="400" y="290" text-anchor="middle" font-family="sans-serif" font-size="50" fill="hsl('+h+' 35% 25%)">'+esc(name)+'</text><text x="400" y="360" text-anchor="middle" font-family="sans-serif" font-size="30" fill="hsl('+h+' 30% 36%)">示例图 · '+esc(label)+'</text></svg>';
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+function src(p, it, thumb){
+  if (typeof p !== 'string') return '';
+  if (p.startsWith('ph:')) { const a = p.split(':'); return phSVG(+a[1] || 200, a.slice(2).join(':'), it ? it.name : ''); }
+  if (p.startsWith('pending:')) { const k = pending[p.slice(8)]; return k ? (thumb ? k.thumb : k.full) : ''; }
+  if (PHOTO_RE.test(p)) {
+    const path = thumb ? thumbOf(p) : p;
+    return local[path] || path;
+  }
+  return '';
+}
+
+/* ================= formatting ================= */
+function fmt(v){ if (v === '' || v == null || isNaN(+v)) return null; const n = +v; return n === 0 ? '免费' : '¥' + n.toLocaleString('ja-JP'); }
+function priceHTML(it, withOrig){
+  const p = fmt(it.price) || '面议';
+  const o = withOrig && fmt(it.origPrice) && +it.origPrice > +it.price ? '<s>原价 ' + esc(fmt(it.origPrice)) + '</s>' : '';
+  return esc(p) + o;
+}
+function cats(){ return [...new Set(state.items.map(i => (i.category || '').trim()).filter(Boolean))]; }
+function visible(){
+  return state.items.map((it, i) => ({it, i}))
+    .filter(({it}) => (ui.status === 'all' || it.status === ui.status) && (ui.cat === 'all' || (it.category || '') === ui.cat))
+    .sort((a, b) => (RANK[a.it.status] ?? 0) - (RANK[b.it.status] ?? 0) || a.i - b.i)
+    .map(x => x.it);
+}
+function pill(s){ const S = STATUS[s] || STATUS.available; return '<span class="pill '+S.c+'">'+S.t+'</span>'; }
+function allPhotos(st){ const out = []; (st.items || []).forEach(i => (i.photos || []).forEach(p => out.push(p))); return out; }
+
+/* ================= render ================= */
+const app = $('#app');
+function render(){
+  const s = state.settings || {}, items = state.items || [];
+  const n = {all: items.length, available:0, reserved:0, sold:0};
+  items.forEach(i => n[i.status] = (n[i.status] || 0) + 1);
+  const hasEx = items.some(i => i.example);
+  const info = [['自提 / 交易方式', s.loc], ['截止时间', s.deadline], ['联系方式', s.contact]].filter(x => x[1]);
+  let h = '<div class="wrap">';
+  h += '<header class="head"><div><h1>'+esc(s.title || '搬家出物')+'</h1>' + (s.sub ? '<p class="sub">'+esc(s.sub)+'</p>' : '') + '</div>';
+  h += '<div class="counts"><div><b>'+n.available+'</b>在售</div><div><b>'+n.reserved+'</b>已预定</div><div><b>'+n.sold+'</b>已售出</div></div></header>';
+  if (info.length) h += '<div class="info">' + info.map(([k, v]) => '<div><div class="k">'+k+'</div><div class="v"><span>'+esc(v)+'</span>' + (k === '联系方式' ? '<button class="btn small" data-act="copy" data-text="'+esc(v)+'">复制</button>' : '') + '</div></div>').join('') + '</div>';
+  if (s.notice) h += '<div class="notice">'+esc(s.notice)+'</div>';
+  if (conflict) h += '<div class="conflict"><span>仓库里的清单在你编辑期间被改过（可能是另一台设备）。</span><button class="btn small primary" data-act="force">用我的版本覆盖</button><button class="btn small" data-act="reloadLatest">放弃我的修改，载入最新</button></div>';
+  if (hasEx) h += '<p class="example-banner">标有“示例”的物品是演示数据' + (ui.managing ? '，可以点底部“删除示例”清掉。' : '。') + '</p>';
+
+  h += '<div class="controls"><div class="chips" role="group" aria-label="按状态筛选">';
+  [['all','全部'],['available','在售'],['reserved','已预定'],['sold','已售出']].forEach(([k, t]) => {
+    h += '<button class="chip" data-act="status" data-v="'+k+'" aria-pressed="'+(ui.status === k)+'">'+t+'<span class="n">'+(n[k] || 0)+'</span></button>';
+  });
+  h += '</div><div class="right">';
+  const cs = cats();
+  if (cs.length > 1) h += '<select class="sel" id="catSel" aria-label="分类"><option value="all">全部分类</option>' + cs.map(c => '<option'+(ui.cat === c ? ' selected' : '')+'>'+esc(c)+'</option>').join('') + '</select>';
+  h += '<div class="seg" role="group" aria-label="显示方式"><button data-act="view" data-v="grid" aria-pressed="'+(ui.view === 'grid')+'">卡片</button><button data-act="view" data-v="table" aria-pressed="'+(ui.view === 'table')+'">表格</button></div>';
+  h += '</div></div>';
+
+  const list = visible();
+  if (!list.length) {
+    h += '<div class="empty">' + (items.length ? '这个筛选下没有物品。' : (ui.managing ? '还没有物品。点底部“添加物品”，上传几张照片就能开始。' : '物品清单还在整理中，稍后再来看看。')) + '</div>';
+  } else if (ui.view === 'table') {
+    h += '<div class="tbl-wrap"><table><thead><tr><th>照片</th><th>物品</th><th>分类</th><th>价格</th><th>状态</th><th>备注</th><th>图数</th></tr></thead><tbody>';
+    list.forEach(it => {
+      h += '<tr class="'+(it.status === 'sold' ? 'sold' : '')+'" data-act="open" data-id="'+esc(it.id)+'" tabindex="0"><td>' + (it.photos && it.photos[0] ? '<img class="thumb" alt="" loading="lazy" src="'+esc(src(it.photos[0], it, true))+'">' : '') + '</td><td>'+esc(it.name)+(it.example ? ' <span class="hint">示例</span>' : '')+'</td><td>'+esc(it.category)+'</td><td class="num">'+esc(fmt(it.price) || '面议')+'</td><td>'+pill(it.status)+(it.statusNote ? '<div class="hint">'+esc(it.statusNote)+'</div>' : '')+'</td><td class="note">'+esc(it.note)+'</td><td class="num">'+((it.photos || []).length)+'</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  } else {
+    h += '<div class="grid">';
+    list.forEach(it => {
+      const cover = it.photos && it.photos[0] ? src(it.photos[0], it, true) : '';
+      const np = (it.photos || []).length;
+      h += '<article class="card '+(it.status === 'sold' ? 'sold' : '')+'"><button class="open" data-act="open" data-id="'+esc(it.id)+'" aria-label="查看 '+esc(it.name)+'">';
+      h += '<div class="ph">' + (cover ? '<img loading="lazy" alt="" src="'+esc(cover)+'">' : '') + pill(it.status) + (np > 1 ? '<span class="cnt">'+np+' 图</span>' : '') + '<span class="price">'+priceHTML(it, false)+'</span>' + (it.status === 'sold' ? '<div class="stamp"><span>已售出</span></div>' : '') + (it.example ? '<span class="ex">示例</span>' : '') + '</div>';
+      h += '<div class="body">' + (it.category ? '<span class="cat">'+esc(it.category)+'</span>' : '') + '<span class="name">'+esc(it.name)+'</span>' + (it.statusNote && it.status !== 'available' ? '<span class="snote">'+esc(it.statusNote)+'</span>' : '') + (it.note ? '<span class="note">'+esc(it.note)+'</span>' : '') + '</div></button>';
+      if (ui.managing) h += '<div class="mrow"><select class="sel" data-act="qstatus" data-id="'+esc(it.id)+'" aria-label="状态">' + Object.entries(STATUS).map(([k, v]) => '<option value="'+k+'"'+(it.status === k ? ' selected' : '')+'>'+v.t+'</option>').join('') + '</select><button class="btn small" data-act="edit" data-id="'+esc(it.id)+'">编辑</button></div>';
+      h += '</article>';
+    });
+    h += '</div>';
+  }
+  h += '<footer class="foot"><span>状态每分钟自动刷新</span>' + (ui.managing ? '' : '<button data-act="manage">管理</button>') + '</footer>';
+  h += '</div>';
+  if (ui.managing) {
+    const np = Object.keys(pending).length;
+    h += '<div class="mbar"><div class="in"><div class="right"><button class="btn" data-act="add">+ 添加物品</button><button class="btn" data-act="settings">页面信息</button>' + (hasEx ? '<button class="btn" data-act="clearEx">删除示例</button>' : '') + '<button class="btn" data-act="exit">退出管理</button></div>';
+    h += '<div class="right"><span class="stat">'+(edits ? edits + ' 处修改未发布' + (np ? '（含 ' + np + ' 张新照片）' : '') : '没有未发布的修改')+'</span><button class="btn primary" data-act="publish"'+(edits ? '' : ' disabled')+'>发布更新</button></div></div></div>';
+  }
+  app.innerHTML = h;
+  document.body.classList.toggle('managing', ui.managing);
+  const cs2 = $('#catSel'); if (cs2) cs2.onchange = e => { ui.cat = e.target.value; render(); };
+}
+
+/* ================= toast & copy ================= */
+let toastT;
+function toast(msg, ms){
+  let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms || 3500);
+}
+function copy(text){
+  const fallback = () => toast('复制失败，请手动选中文字');
+  try { navigator.clipboard.writeText(text).then(() => toast('已复制'), fallback); } catch(e) { fallback(); }
+}
+
+/* ================= detail view ================= */
+const dv = document.createElement('dialog'); document.body.appendChild(dv);
+let cur = null, idx = 0;
+function openView(id){ cur = state.items.find(i => i.id === id); if (!cur) return; idx = 0; drawView(); if (!dv.open) dv.showModal(); }
+function drawView(){
+  const it = cur, ps = it.photos || [], s = state.settings || {};
+  let h = '<button class="x" data-v="close" aria-label="关闭">×</button><div class="dv"><div class="gal"><div class="main" id="gmain">';
+  if (ps.length) h += '<img alt="'+esc(it.name)+' 第 '+(idx + 1)+' 张" src="'+esc(src(ps[idx], it, false))+'">';
+  if (ps.length > 1) h += '<button class="nav prev" data-v="prev" aria-label="上一张">‹</button><button class="nav next" data-v="next" aria-label="下一张">›</button><span class="idx">'+(idx + 1)+' / '+ps.length+'</span>';
+  h += '</div>';
+  if (ps.length > 1) h += '<div class="thumbs">' + ps.map((p, i) => '<button data-v="go" data-i="'+i+'" aria-current="'+(i === idx)+'" aria-label="第 '+(i + 1)+' 张"><img alt="" src="'+esc(src(p, it, true))+'"></button>').join('') + '</div>';
+  h += '</div><div class="dinfo"><div>'+pill(it.status)+(it.example ? ' <span class="hint">示例</span>' : '')+'</div><h2>'+esc(it.name)+'</h2><div class="dprice">'+priceHTML(it, true)+'</div>';
+  if (it.statusNote && it.status !== 'available') h += '<div class="snote" style="color:var(--warn)">'+esc(it.statusNote)+'</div>';
+  if (it.category) h += '<div class="dmeta">分类：'+esc(it.category)+'</div>';
+  if (it.note) h += '<div class="dnote">'+esc(it.note)+'</div>';
+  if (it.status === 'available' && s.contact) h += '<div class="contact">想要这件？联系：<b>'+esc(s.contact)+'</b> <button class="btn small" data-v="copy">复制</button><div class="hint">发消息时说一下物品名称，确认后会把它标成“已预定”。</div></div>';
+  if (ui.managing) h += '<div><button class="btn" data-v="edit">编辑这件物品</button></div>';
+  h += '</div></div>';
+  dv.innerHTML = h;
+}
+function step(d){ const n = (cur && cur.photos || []).length; if (n < 2) return; idx = (idx + d + n) % n; drawView(); }
+dv.addEventListener('click', e => {
+  if (e.target === dv) return dv.close();
+  const b = e.target.closest('[data-v]'); if (!b) return;
+  const v = b.dataset.v;
+  if (v === 'close') dv.close();
+  else if (v === 'prev') step(-1);
+  else if (v === 'next') step(1);
+  else if (v === 'go') { idx = +b.dataset.i; drawView(); }
+  else if (v === 'copy') copy((state.settings || {}).contact || '');
+  else if (v === 'edit') { dv.close(); openEdit(cur.id); }
+});
+dv.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); });
+let sx = null;
+dv.addEventListener('pointerdown', e => { if (e.target.closest('#gmain')) sx = e.clientX; });
+dv.addEventListener('pointerup', e => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) >= 40) step(dx < 0 ? 1 : -1); });
+
+/* ================= edit item ================= */
+const de = document.createElement('dialog'); document.body.appendChild(de);
+let editing = null, ephotos = [], delArm = false;
+function openEdit(id){
+  editing = id ? state.items.find(i => i.id === id) : null;
+  ephotos = editing ? [...(editing.photos || [])] : [];
+  delArm = false;
+  const it = editing || {name:'', category:'', price:'', origPrice:'', note:'', status:'available', statusNote:''};
+  de.innerHTML = '<form class="form" id="editForm" novalidate><h2>'+(editing ? '编辑物品' : '添加物品')+'</h2>'
+    + '<div class="row"><div class="fld"><label for="f-name">名称 *</label><input id="f-name" required value="'+esc(it.name)+'" placeholder="例：宜家书桌 120×60cm"></div>'
+    + '<div class="fld"><label for="f-cat">分类</label><input id="f-cat" list="catList" value="'+esc(it.category)+'" placeholder="家具 / 家电 / 厨房…"><datalist id="catList">'+cats().map(c => '<option value="'+esc(c)+'">').join('')+'</datalist></div></div>'
+    + '<div class="row"><div class="fld"><label for="f-price">售价（日元，0 = 免费，留空 = 面议）</label><input id="f-price" inputmode="numeric" value="'+esc(it.price)+'"></div>'
+    + '<div class="fld"><label for="f-orig">原价（可选）</label><input id="f-orig" inputmode="numeric" value="'+esc(it.origPrice)+'"></div>'
+    + '<div class="fld"><label for="f-status">状态</label><select id="f-status">'+Object.entries(STATUS).map(([k, v]) => '<option value="'+k+'"'+(it.status === k ? ' selected' : '')+'>'+v.t+'</option>').join('')+'</select></div></div>'
+    + '<div class="fld"><label for="f-snote">预定说明（公开显示，建议不写对方姓名，例：已约 10/20 取货）</label><input id="f-snote" value="'+esc(it.statusNote)+'"></div>'
+    + '<div class="fld"><label for="f-note">备注 / 简介</label><textarea id="f-note" placeholder="尺寸、使用年限、瑕疵、是否需要自己搬运…">'+esc(it.note)+'</textarea></div>'
+    + '<div class="fld"><label>照片（第一张是封面，可以上传多张多角度）</label><div class="photos" id="photoGrid"></div><input type="file" id="f-file" accept="image/*" multiple hidden><div class="hint">照片会压缩到长边 '+FULL_PX+'px，并自动生成小图给列表用。也可以直接粘贴图片。</div></div>'
+    + '<div class="actions"><div>'+(editing ? '<button type="button" class="btn danger" id="delBtn">删除这件物品</button>' : '')+'</div><div class="right"><button type="button" class="btn" id="cancelBtn">取消</button><button type="submit" class="btn primary">'+(editing ? '保存' : '添加')+'</button></div></div></form>';
+  drawPhotos();
+  de.showModal();
+  $('#f-file').onchange = e => addFiles(e.target.files);
+  $('#cancelBtn').onclick = () => de.close();
+  const db = $('#delBtn');
+  if (db) db.onclick = () => {
+    if (!delArm) { delArm = true; db.textContent = '再点一次确认删除'; return; }
+    state.items = state.items.filter(i => i !== editing); edits++; de.close(); render(); toast('已删除，记得发布更新');
+  };
+  $('#editForm').onsubmit = e => {
+    e.preventDefault();
+    const name = $('#f-name').value.trim();
+    if (!name) { $('#f-name').focus(); toast('请填写物品名称'); return; }
+    const num = v => { v = v.trim().replace(/[,，¥円\s]/g, ''); return v === '' || isNaN(+v) ? '' : +v; };
+    const data = {name, category:$('#f-cat').value.trim(), price:num($('#f-price').value), origPrice:num($('#f-orig').value), status:$('#f-status').value, statusNote:$('#f-snote').value.trim(), note:$('#f-note').value.trim(), photos:ephotos.slice(), example:false};
+    const wasEdit = !!editing;
+    if (editing) Object.assign(editing, data); else state.items.unshift({id:'i' + uid(), ...data});
+    edits++; de.close(); render(); toast(wasEdit ? '已保存，记得发布更新' : '已添加，记得发布更新');
+  };
+}
+function drawPhotos(){
+  const g = $('#photoGrid'); if (!g) return;
+  const fake = editing || {name: ($('#f-name') || {}).value || ''};
+  g.innerHTML = ephotos.map((p, i) => '<div class="pe'+(i === 0 ? ' cover' : '')+'"><img alt="" src="'+esc(src(p, fake, true))+'"><div class="bar"><button type="button" data-p="left" data-i="'+i+'" aria-label="前移">←</button><button type="button" data-p="cover" data-i="'+i+'">'+(i === 0 ? '封面' : '设为封面')+'</button><button type="button" data-p="del" data-i="'+i+'" aria-label="删除">删</button><button type="button" data-p="right" data-i="'+i+'" aria-label="后移">→</button></div></div>').join('')
+    + '<label class="add-ph" for="f-file">+ 添加照片</label>';
+}
+de.addEventListener('click', e => {
+  const b = e.target.closest('[data-p]'); if (!b) return;
+  const i = +b.dataset.i, a = b.dataset.p;
+  if (a === 'del') ephotos.splice(i, 1);
+  else if (a === 'cover' && i > 0) ephotos.unshift(ephotos.splice(i, 1)[0]);
+  else if (a === 'left' && i > 0) [ephotos[i - 1], ephotos[i]] = [ephotos[i], ephotos[i - 1]];
+  else if (a === 'right' && i < ephotos.length - 1) [ephotos[i + 1], ephotos[i]] = [ephotos[i], ephotos[i + 1]];
+  drawPhotos();
+});
+de.addEventListener('paste', e => {
+  const fs = [...((e.clipboardData && e.clipboardData.files) || [])].filter(f => f.type.startsWith('image/'));
+  if (fs.length) { e.preventDefault(); addFiles(fs); }
+});
+async function addFiles(files){
+  const list = [...files].filter(f => f.type.startsWith('image/') || /\.(heic|heif|jpe?g|png|webp)$/i.test(f.name));
+  if (!list.length) return;
+  toast('正在处理 ' + list.length + ' 张照片…');
+  let bad = 0;
+  for (const f of list) {
+    try {
+      const img = await loadImage(f);
+      const key = uid();
+      pending[key] = {full: draw(img, FULL_PX, 0.82), thumb: draw(img, THUMB_PX, 0.78)};
+      ephotos.push('pending:' + key); drawPhotos();
+    } catch(err) { bad++; }
+  }
+  toast(bad ? bad + ' 张照片无法读取（HEIC 请先转成 JPG）' : '照片已添加');
+  const fi = $('#f-file'); if (fi) fi.value = '';
+}
+async function loadImage(file){
+  try { return await createImageBitmap(file, {imageOrientation:'from-image'}); }
+  catch(e) {
+    const url = URL.createObjectURL(file);
+    return await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = url; });
+  }
+}
+function draw(img, max, q){
+  const k = Math.min(1, max / Math.max(img.width, img.height));
+  const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', q);
+}
+
+/* ================= page settings ================= */
+const ds = document.createElement('dialog'); document.body.appendChild(ds);
+function openSettings(){
+  const s = state.settings || {};
+  const f = (id, label, v, ph, ta) => '<div class="fld"><label for="'+id+'">'+label+'</label>' + (ta ? '<textarea id="'+id+'" placeholder="'+esc(ph)+'">'+esc(v)+'</textarea>' : '<input id="'+id+'" value="'+esc(v)+'" placeholder="'+esc(ph)+'">') + '</div>';
+  ds.innerHTML = '<form class="form" id="setForm"><h2>页面信息</h2>'
+    + f('s-title', '标题', s.title, '搬家出物') + f('s-sub', '简介', s.sub, '一两句话说明情况', true)
+    + '<div class="row">' + f('s-loc', '自提 / 交易方式', s.loc, '例：××站附近自提') + f('s-deadline', '截止时间', s.deadline, '例：10 月 31 日前') + '</div>'
+    + f('s-contact', '联系方式（所有看到页面的人都能看到）', s.contact, '例：微信 xxx / LINE xxx')
+    + f('s-notice', '公告（可选，显示在顶部）', s.notice, '例：大件需自己搬运', true)
+    + '<div class="actions"><button type="button" class="btn danger" id="sLogout">在这台设备上退出管理</button><div class="right"><button type="button" class="btn" id="sCancel">取消</button><button class="btn primary">保存</button></div></div></form>';
+  ds.showModal();
+  $('#sCancel').onclick = () => ds.close();
+  $('#sLogout').onclick = () => { ls.del('gh-admin'); gh = null; ds.close(); ui.managing = false; render(); toast('已删除这台设备上保存的令牌'); };
+  $('#setForm').onsubmit = e => {
+    e.preventDefault();
+    const g = id => $('#' + id).value.trim();
+    state.settings = Object.assign({}, state.settings, {title:g('s-title'), sub:g('s-sub'), loc:g('s-loc'), deadline:g('s-deadline'), contact:g('s-contact'), notice:g('s-notice')});
+    edits++; ds.close(); render(); toast('已保存，记得发布更新');
+  };
+}
+
+/* ================= GitHub connection ================= */
+const dg = document.createElement('dialog'); document.body.appendChild(dg);
+function openConnect(){
+  const g = gh || Object.assign({branch:'main', token:''}, guessRepo());
+  dg.innerHTML = '<form class="form" id="ghForm"><h2>连接 GitHub 以编辑</h2>'
+    + '<ol class="steps"><li>打开 <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → 新建 Fine-grained token</a></li><li>Repository access 选 <b>Only select repositories</b>，只选这个仓库</li><li>Permissions → Repository permissions → <b>Contents</b> 设为 <b>Read and write</b>，其他不动</li><li>生成后把 token 粘贴到下面</li></ol>'
+    + '<div class="row"><div class="fld"><label for="g-owner">GitHub 用户名</label><input id="g-owner" value="'+esc(g.owner)+'" autocomplete="off"></div><div class="fld"><label for="g-repo">仓库名</label><input id="g-repo" value="'+esc(g.repo)+'" autocomplete="off"></div><div class="fld"><label for="g-branch">分支</label><input id="g-branch" value="'+esc(g.branch || 'main')+'" autocomplete="off"></div></div>'
+    + '<div class="fld"><label for="g-token">Token（只保存在这台设备的浏览器里，不会写进仓库）</label><input id="g-token" type="password" value="'+esc(g.token)+'" autocomplete="off" placeholder="github_pat_…"></div>'
+    + '<div class="err" id="g-err"></div>'
+    + '<div class="actions"><span></span><div class="right"><button type="button" class="btn" id="gCancel">取消</button><button class="btn primary" id="gOk">连接</button></div></div></form>';
+  dg.showModal();
+  $('#gCancel').onclick = () => dg.close();
+  $('#ghForm').onsubmit = async e => {
+    e.preventDefault();
+    const cand = {owner:$('#g-owner').value.trim(), repo:$('#g-repo').value.trim(), branch:$('#g-branch').value.trim() || 'main', token:$('#g-token').value.trim()};
+    const err = $('#g-err'), ok = $('#gOk');
+    if (!cand.owner || !cand.repo || !cand.token) { err.textContent = '四项都要填。'; return; }
+    ok.disabled = true; ok.textContent = '连接中…'; err.textContent = '';
+    try {
+      const info = await api(cand, '');
+      if (info.permissions && info.permissions.push === false) throw Object.assign(new Error(), {status:403});
+      gh = cand; ls.set('gh-admin', JSON.stringify(gh));
+      dg.close(); await enterManage();
+    } catch(x) {
+      err.textContent = x.status === 401 ? 'Token 无效或已过期，请重新生成。'
+        : x.status === 404 ? '找不到这个仓库，或者 token 没有勾选这个仓库。'
+        : x.status === 403 ? 'Token 没有写入权限，请把 Contents 设为 Read and write。'
+        : '连接失败：' + (x.message || '网络错误');
+    } finally { ok.disabled = false; ok.textContent = '连接'; }
+  };
+}
+async function api(g, path, opt){
+  opt = opt || {};
+  const headers = {'Authorization':'Bearer ' + g.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28'};
+  if (opt.body) headers['Content-Type'] = 'application/json';
+  const res = await fetch('https://api.github.com/repos/' + encodeURIComponent(g.owner) + '/' + encodeURIComponent(g.repo) + path, {method: opt.method || 'GET', headers, body: opt.body ? JSON.stringify(opt.body) : undefined, cache:'no-store'});
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) { const e = new Error(j.message || ('HTTP ' + res.status)); e.status = res.status; throw e; }
+  return j;
+}
+function b64ToUtf8(b64){ const bin = atob(b64.replace(/\s/g, '')); return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))); }
+
+async function enterManage(){
+  if (!gh) return openConnect();
+  toast('正在从仓库读取最新清单…');
+  try {
+    const f = await api(gh, '/contents/data.json?ref=' + encodeURIComponent(gh.branch));
+    const fresh = JSON.parse(b64ToUtf8(f.content));
+    loadedSha = f.sha;
+    if (!edits) { setState(fresh); }
+    loadedPaths = new Set(allPhotos(fresh).filter(p => PHOTO_RE.test(p)));
+    ui.managing = true; conflict = false; render(); toast('已进入管理模式');
+  } catch(x) {
+    if (x.status === 401 || x.status === 403) { toast('Token 已失效，请重新连接'); openConnect(); }
+    else if (x.status === 404) { loadedSha = null; loadedPaths = new Set(); ui.managing = true; render(); toast('仓库里还没有 data.json，发布时会自动创建'); }
+    else toast('读取失败：' + x.message);
+  }
+}
+
+/* ================= publish (one commit) ================= */
+let publishing = false;
+async function publish(force){
+  if (!gh || publishing) return;
+  publishing = true;
+  const btn = document.querySelector('[data-act="publish"]'); if (btn) { btn.disabled = true; btn.textContent = '发布中…'; }
+  try {
+    // 1. someone else changed data.json?
+    let curSha = null;
+    try { curSha = (await api(gh, '/contents/data.json?ref=' + encodeURIComponent(gh.branch))).sha; } catch(x) { if (x.status !== 404) throw x; }
+    if (!force && loadedSha && curSha && curSha !== loadedSha) { conflict = true; render(); return; }
+
+    // 2. build the state to commit, mapping pending photos to file paths
+    const next = JSON.parse(JSON.stringify(state));
+    next.v = 2;
+    const uploads = [];
+    next.items.forEach(it => {
+      it.photos = (it.photos || []).map(p => {
+        if (!p.startsWith('pending:')) return p;
+        const key = p.slice(8), data = pending[key]; if (!data) return null;
+        const path = 'photos/' + key + '.jpg';
+        uploads.push({key, path, data});
+        return path;
+      }).filter(Boolean);
+    });
+    const keep = new Set();
+    allPhotos(next).filter(p => PHOTO_RE.test(p)).forEach(p => { keep.add(p); keep.add(thumbOf(p)); });
+
+    // 3. blobs
+    const tree = [];
+    let done = 0;
+    for (const u of uploads) {
+      if (btn) btn.textContent = '上传照片 ' + (++done) + '/' + uploads.length + '…';
+      const full = await api(gh, '/git/blobs', {method:'POST', body:{content:u.data.full.split(',')[1], encoding:'base64'}});
+      const th = await api(gh, '/git/blobs', {method:'POST', body:{content:u.data.thumb.split(',')[1], encoding:'base64'}});
+      tree.push({path:u.path, mode:'100644', type:'blob', sha:full.sha}, {path:thumbOf(u.path), mode:'100644', type:'blob', sha:th.sha});
+    }
+    if (btn) btn.textContent = '提交中…';
+    const dataBlob = await api(gh, '/git/blobs', {method:'POST', body:{content:JSON.stringify(next, null, 1), encoding:'utf-8'}});
+    tree.push({path:'data.json', mode:'100644', type:'blob', sha:dataBlob.sha});
+    loadedPaths.forEach(p => { if (!keep.has(p)) tree.push({path:p, mode:'100644', type:'blob', sha:null}, {path:thumbOf(p), mode:'100644', type:'blob', sha:null}); });
+
+    // 4. commit on top of the branch head
+    const ref = await api(gh, '/git/ref/heads/' + encodeURIComponent(gh.branch));
+    const head = await api(gh, '/git/commits/' + ref.object.sha);
+    let newTree;
+    try { newTree = await api(gh, '/git/trees', {method:'POST', body:{base_tree:head.tree.sha, tree}}); }
+    catch(x) {
+      // a deleted photo may already be gone; retry without deletions
+      if (x.status !== 422) throw x;
+      newTree = await api(gh, '/git/trees', {method:'POST', body:{base_tree:head.tree.sha, tree:tree.filter(t => t.sha !== null)}});
+    }
+    const commit = await api(gh, '/git/commits', {method:'POST', body:{message:'更新出物清单（' + new Date().toLocaleString('zh-CN', {hour12:false}) + '）', tree:newTree.sha, parents:[ref.object.sha]}});
+    await api(gh, '/git/refs/heads/' + encodeURIComponent(gh.branch), {method:'PATCH', body:{sha:commit.sha}});
+
+    // 5. success: keep new photos visible locally until Pages redeploys
+    uploads.forEach(u => { local[u.path] = u.data.full; local[thumbOf(u.path)] = u.data.thumb; delete pending[u.key]; });
+    loadedSha = dataBlob.sha;
+    loadedPaths = new Set(allPhotos(next).filter(p => PHOTO_RE.test(p)));
+    setState(next);
+    edits = 0; conflict = false;
+    toast('已发布！大约 1 分钟后所有人刷新就能看到', 5000);
+  } catch(x) {
+    if (x.status === 401) { toast('Token 已失效，请重新连接'); openConnect(); }
+    else if (x.status === 403) toast('没有写入权限：请确认 token 的 Contents 是 Read and write');
+    else if (x.status === 422) toast('仓库刚被更新过，请再点一次“发布更新”');
+    else toast('发布失败：' + (x.message || '网络错误') + '。修改还在，可以再试一次', 5000);
+  } finally {
+    publishing = false; render();
+  }
+}
+
+/* ================= data loading ================= */
+function setState(s){
+  state = s && typeof s === 'object' ? s : {v:2, settings:{}, items:[]};
+  state.settings = state.settings || {}; state.items = Array.isArray(state.items) ? state.items : [];
+  stateStr = JSON.stringify(state);
+  if (cur) { cur = state.items.find(i => i.id === cur.id) || null; if (dv.open) { if (cur) { idx = Math.min(idx, Math.max(0, (cur.photos || []).length - 1)); drawView(); } else dv.close(); } }
+}
+async function loadPublic(first){
+  try {
+    const res = await fetch('data.json?t=' + Date.now(), {cache:'no-store'});
+    if (!res.ok) throw new Error(res.status);
+    const txt = await res.text();
+    const s = JSON.parse(txt);
+    if (JSON.stringify(s) !== stateStr) { setState(s); render(); }
+    else if (first) render();
+  } catch(e) {
+    if (first) app.innerHTML = '<div class="wrap"><div class="empty">清单载入失败，请稍后刷新页面。</div></div>';
+  }
+}
+
+/* ================= events ================= */
+app.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act;
+  if (a === 'qstatus') return;
+  if (a === 'status') { ui.status = b.dataset.v; render(); }
+  else if (a === 'view') { ui.view = b.dataset.v; ls.set('view', ui.view); render(); }
+  else if (a === 'open') openView(b.dataset.id);
+  else if (a === 'copy') copy(b.dataset.text);
+  else if (a === 'manage') enterManage();
+  else if (a === 'exit') { if (edits) { toast('还有 ' + edits + ' 处修改没发布，先发布或刷新页面放弃'); return; } ui.managing = false; render(); }
+  else if (a === 'add') openEdit(null);
+  else if (a === 'edit') openEdit(b.dataset.id);
+  else if (a === 'settings') openSettings();
+  else if (a === 'clearEx') { state.items = state.items.filter(i => !i.example); edits++; render(); toast('示例已删除，记得发布更新'); }
+  else if (a === 'publish') publish(false);
+  else if (a === 'force') publish(true);
+  else if (a === 'reloadLatest') { edits = 0; conflict = false; Object.keys(pending).forEach(k => delete pending[k]); enterManage(); }
+});
+app.addEventListener('change', e => {
+  const s = e.target.closest('[data-act="qstatus"]'); if (!s) return;
+  const it = state.items.find(i => i.id === s.dataset.id); if (!it) return;
+  it.status = s.value; edits++; render(); toast('已标记为“' + STATUS[s.value].t + '”，记得发布更新');
+});
+app.addEventListener('keydown', e => {
+  const r = e.target.closest('tr[data-act="open"]');
+  if (r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openView(r.dataset.id); }
+});
+window.addEventListener('beforeunload', e => { if (edits) { e.preventDefault(); e.returnValue = ''; } });
+
+loadPublic(true).then(() => { if (location.hash === '#admin') enterManage(); });
+setInterval(() => { if (!ui.managing && document.visibilityState === 'visible') loadPublic(false); }, POLL_MS);
+document.addEventListener('visibilitychange', () => { if (!ui.managing && document.visibilityState === 'visible') loadPublic(false); });
+})();
+</script>
+</body>
+</html>
