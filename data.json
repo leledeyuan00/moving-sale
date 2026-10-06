@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imuwpeblug3w26",
+   "name": "电压锅 IRIS",
+   "category": "家电",
+   "price": 500,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "朋友给的电压锅，用过两次炖酸菜排骨来着。箱书齐全。",
+   "photos": [
+    "photos/muwpe29ykwwwa.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwnvz6d0bqdc",
    "name": "空气炸锅",
    "category": "家电",
