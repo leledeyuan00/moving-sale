@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imuwasnuylbjtp",
+   "name": "舒服的椅子",
+   "category": "",
+   "price": 2000,
+   "origPrice": 100000,
+   "status": "available",
+   "statusNote": "",
+   "note": "轮子不好用了。躺起来还蛮舒服的",
+   "photos": [
+    "photos/muwaptpkxdcxx.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwapa1t8d1au",
    "name": "除湿器",
    "category": "家电",
