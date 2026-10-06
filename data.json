@@ -10,6 +10,18 @@
  },
  "items": [
   {
+   "id": "imuws8ven4vn80",
+   "name": "宜家1.2m 床+床垫",
+   "category": "家具",
+   "price": 8000,
+   "origPrice": 40000,
+   "status": "available",
+   "statusNote": "",
+   "note": "舒服！但是这个床架子估计得拆了自己再装一下。床垫也得找王师傅帮忙搬了。",
+   "photos": [],
+   "example": false
+  },
+  {
    "id": "imuws34gjnd9k4",
    "name": "27 寸 4K 高刷显示器",
    "category": "玩的",
