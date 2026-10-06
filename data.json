@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuwu0d7p8juvk",
+   "name": "IRIS 洗衣机",
+   "category": "家电",
+   "price": 4000,
+   "origPrice": 30000,
+   "status": "available",
+   "statusNote": "",
+   "note": "47L洗衣机 Amazon上买的，用了3年。最好能来自提……",
+   "photos": [
+    "photos/muwu0a8ugjf0p.jpg",
+    "photos/muwu0aee4r7z4.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwttvy7gralp",
    "name": "瑜伽垫",
    "category": "玩的",
