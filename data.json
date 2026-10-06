@@ -10,6 +10,34 @@
  },
  "items": [
   {
+   "id": "imuwkd7rxb9sr7",
+   "name": "宜家小台风",
+   "category": "家电",
+   "price": 500,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "灯泡亮亮的，拿来放书桌上比较好",
+   "photos": [
+    "photos/muwkcse78bu6e.jpg"
+   ],
+   "example": false
+  },
+  {
+   "id": "imuwkcctk9ydne",
+   "name": "小台灯",
+   "category": "家电",
+   "price": 500,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "放床头的宜家小台灯，灯罩有一点点摔坏了",
+   "photos": [
+    "photos/muwkbygwif2l7.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwasnuylbjtp",
    "name": "舒服的椅子",
    "category": "",
