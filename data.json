@@ -10,6 +10,50 @@
  },
  "items": [
   {
+   "id": "imuwaej8w1oh8v",
+   "name": "IRIS 立式摇头风扇",
+   "category": "家电",
+   "price": 500,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "",
+   "photos": [
+    "photos/muwae8hhbffgi.jpg"
+   ],
+   "example": false
+  },
+  {
+   "id": "imuwacsrxpalcj",
+   "name": "Muji小风扇",
+   "category": "家具",
+   "price": 2000,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "Muji摇头小风扇，挺不错",
+   "photos": [
+    "photos/muwacn371smtq.jpg",
+    "photos/muwacn9kfyrjn.jpg"
+   ],
+   "example": false
+  },
+  {
+   "id": "imuwabli395b9b",
+   "name": "折叠衣架2个",
+   "category": "",
+   "price": 500,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "两个500一起卖～ 一大一小。",
+   "photos": [
+    "photos/muwabjl9bqdhn.jpg",
+    "photos/muwabjthpgetq.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuw9mgjn0buow",
    "name": "灰色小摇椅",
    "category": "家具",
