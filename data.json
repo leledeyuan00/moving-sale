@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuwapa1t8d1au",
+   "name": "除湿器",
+   "category": "家电",
+   "price": 500,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "小小的，很好用，不过静音模式不能用了，只能开全功率的",
+   "photos": [
+    "photos/muwap8mnvfxej.jpg",
+    "photos/muwap8s3zxpyx.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwaej8w1oh8v",
    "name": "IRIS 立式摇头风扇",
    "category": "家电",
