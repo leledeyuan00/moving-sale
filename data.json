@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imuxk1aydcivo5",
+   "name": "MUJI懒人沙发",
+   "category": "家具",
+   "price": 0,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "用了3年了吧。一起可以送一下其他的抱枕",
+   "photos": [
+    "photos/muxk1nroaaqdg.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuwu0d7p8juvk",
    "name": "IRIS 洗衣机",
    "category": "家电",
