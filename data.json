@@ -15,8 +15,8 @@
    "category": "家电",
    "price": 1000,
    "origPrice": 15000,
-   "status": "available",
-   "statusNote": "",
+   "status": "reserved",
+   "statusNote": "10/08 下午4点自提 雫石",
    "note": "几年前买的，但是没怎么用过。适合快速暖房。",
    "photos": [
     "photos/muxoypbbby7lb.jpg"
@@ -249,8 +249,8 @@
    "category": "玩的",
    "price": 10000,
    "origPrice": 40000,
-   "status": "available",
-   "statusNote": "",
+   "status": "reserved",
+   "statusNote": "10/08 下午4点自提 雫石",
    "note": "27寸 240hz 4k高刷显示器",
    "photos": [
     "photos/muwsw1islkjn8.jpg"
@@ -350,8 +350,8 @@
    "category": "家电",
    "price": 500,
    "origPrice": "",
-   "status": "available",
-   "statusNote": "",
+   "status": "reserved",
+   "statusNote": "10/08 下午4点自提 雫石",
    "note": "放床头的宜家小台灯，灯罩有一点点摔坏了",
    "photos": [
     "photos/muwkbygwif2l7.jpg"
