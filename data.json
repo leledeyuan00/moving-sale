@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imuxtm09xfkvtz",
+   "name": "小熨斗",
+   "category": "家电",
+   "price": 100,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "买了几年，但是就用过一次。一开始想拿来做研究来着……",
+   "photos": [
+    "photos/muxtlz7pyz3c9.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxr6yn5as0m8",
    "name": "罗技摄像头",
    "category": "",
