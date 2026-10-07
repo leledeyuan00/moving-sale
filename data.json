@@ -72,8 +72,8 @@
    "category": "",
    "price": 300,
    "origPrice": "",
-   "status": "available",
-   "statusNote": "",
+   "status": "reserved",
+   "statusNote": "Glacier 王师傅来取",
    "note": "两对 1.38m",
    "photos": [
     "photos/muxosm1vs211z.jpg"
@@ -101,7 +101,7 @@
    "category": "",
    "price": 500,
    "origPrice": "",
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "两对窗帘。长的2m高，短的1.38m配白色纱帘。",
    "photos": [
@@ -217,7 +217,7 @@
    "category": "家具",
    "price": 200,
    "origPrice": "",
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "很搭我的宜家床",
    "photos": [
@@ -247,8 +247,8 @@
    "category": "家具",
    "price": 1000,
    "origPrice": 40000,
-   "status": "available",
-   "statusNote": "",
+   "status": "reserved",
+   "statusNote": "Glacier 王师傅来取",
    "note": "舒服！但是这个床架子估计得拆了自己再装一下。床垫也得找王师傅帮忙搬了。",
    "photos": [
     "photos/muwtncbcl8et4.jpg",
@@ -335,7 +335,7 @@
    "category": "家具",
    "price": 4000,
    "origPrice": 25000,
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "长1.74m 宽0.83m\n自提送",
    "photos": [
