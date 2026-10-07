@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuxoprnn3lyif",
+   "name": "窗帘",
+   "category": "",
+   "price": 500,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "两对窗帘。长的2m高，短的1.38m配白色纱帘。",
+   "photos": [
+    "photos/muxoppujr78iy.jpg",
+    "photos/muxopq0n82w60.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxokmxvdvfoh",
    "name": "米菲小娃娃",
    "category": "",
