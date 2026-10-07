@@ -130,7 +130,7 @@
    "category": "",
    "price": 0,
    "origPrice": "",
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "看着是个木桩，其实是个坐垫，坐在地上看电视还是蛮不错。像个木桩也很可爱",
    "photos": [
@@ -160,7 +160,7 @@
    "category": "家具",
    "price": 0,
    "origPrice": "",
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "用了3年了吧。一起可以送一下其他的抱枕",
    "photos": [
@@ -378,7 +378,7 @@
    "category": "家电",
    "price": 500,
    "origPrice": "",
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "小小的，很好用，不过静音模式不能用了，只能开全功率的",
    "photos": [
