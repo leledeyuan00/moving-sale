@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuxouog721dcw",
+   "name": "Nitori暖风",
+   "category": "家电",
+   "price": 100,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "冬日必备，用了4年了",
+   "photos": [
+    "photos/muxoui23tcgq5.jpg",
+    "photos/muxoui7a1qcxv.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxoso1bemkgx",
    "name": "冷色窗帘",
    "category": "",
@@ -57,7 +72,7 @@
    "id": "imuxokmxvdvfoh",
    "name": "米菲小娃娃",
    "category": "",
-   "price": "",
+   "price": 0,
    "origPrice": 0,
    "status": "available",
    "statusNote": "",
