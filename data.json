@@ -263,8 +263,8 @@
    "category": "家电",
    "price": 10000,
    "origPrice": 40000,
-   "status": "available",
-   "statusNote": "",
+   "status": "reserved",
+   "statusNote": "Mouwe1",
    "note": "用了3年啦，送个电视柜\n60hz刷新",
    "photos": [
     "photos/muwqbljka0eu1.jpg",
