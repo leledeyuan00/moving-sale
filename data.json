@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imuxoyqzgn53r7",
+   "name": "CORONA 灯油暖风",
+   "category": "家电",
+   "price": 1000,
+   "origPrice": 15000,
+   "status": "available",
+   "statusNote": "",
+   "note": "几年前买的，但是没怎么用过。适合快速暖房。",
+   "photos": [
+    "photos/muxoypbbby7lb.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxowgtmfwq5w",
    "name": "IRIS 小太阳",
    "category": "家电",
