@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imuxowgtmfwq5w",
+   "name": "IRIS 小太阳",
+   "category": "家电",
+   "price": 100,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "冬日必备",
+   "photos": [
+    "photos/muxowfsw15ucq.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxouog721dcw",
    "name": "Nitori暖风",
    "category": "家电",
