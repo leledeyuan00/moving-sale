@@ -10,6 +10,35 @@
  },
  "items": [
   {
+   "id": "imuxoso1bemkgx",
+   "name": "冷色窗帘",
+   "category": "",
+   "price": 300,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "两对 1.38m",
+   "photos": [
+    "photos/muxosm1vs211z.jpg"
+   ],
+   "example": false
+  },
+  {
+   "id": "imuxorvgxkheg2",
+   "name": "暖色窗帘",
+   "category": "",
+   "price": 500,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "长2m，短1.38m",
+   "photos": [
+    "photos/muxorthfnhunp.jpg",
+    "photos/muxortm2unav0.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxoprnn3lyif",
    "name": "窗帘",
    "category": "",
