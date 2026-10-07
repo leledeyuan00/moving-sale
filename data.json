@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imuxng98h3nx34",
+   "name": "26寸大行李箱",
+   "category": "",
+   "price": 0,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "4年前来日本买的。上面有个把手坏了…… 其他倒没什么问题，想要的话免费送了",
+   "photos": [
+    "photos/muxng73wuqvu7.jpg",
+    "photos/muxng7ccoajco.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxk1aydcivo5",
    "name": "MUJI懒人沙发",
    "category": "家具",
