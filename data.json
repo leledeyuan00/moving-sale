@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imuxr6yn5as0m8",
+   "name": "罗技摄像头",
+   "category": "",
+   "price": 500,
+   "origPrice": 10000,
+   "status": "available",
+   "statusNote": "",
+   "note": "",
+   "photos": [
+    "photos/muxr6xjtegda0.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxoyqzgn53r7",
    "name": "CORONA 灯油暖风",
    "category": "家电",
