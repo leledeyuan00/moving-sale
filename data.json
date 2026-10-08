@@ -43,7 +43,7 @@
    "category": "家电",
    "price": 1000,
    "origPrice": 15000,
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "10/08 下午4点自提 雫石",
    "note": "几年前买的，但是没怎么用过。适合快速暖房。",
    "photos": [
@@ -86,7 +86,7 @@
    "category": "",
    "price": 300,
    "origPrice": "",
-   "status": "reserved",
+   "status": "available",
    "statusNote": "Glacier 王师傅来取",
    "note": "两对 1.38m",
    "photos": [
@@ -173,7 +173,7 @@
    "category": "",
    "price": 0,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "theo",
    "note": "4年前来日本买的。上面有个把手坏了…… 其他倒没什么问题，想要的话免费送了",
    "photos": [
@@ -231,7 +231,7 @@
    "category": "家具",
    "price": 200,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "很搭我的宜家床",
    "photos": [
@@ -261,7 +261,7 @@
    "category": "家具",
    "price": 1000,
    "origPrice": 40000,
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "Glacier 王师傅来取",
    "note": "舒服！但是这个床架子估计得拆了自己再装一下。床垫也得找王师傅帮忙搬了。",
    "photos": [
@@ -277,7 +277,7 @@
    "category": "玩的",
    "price": 10000,
    "origPrice": 40000,
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "10/08 下午4点自提 雫石",
    "note": "27寸 240hz 4k高刷显示器",
    "photos": [
@@ -349,7 +349,7 @@
    "category": "家具",
    "price": 4000,
    "origPrice": 25000,
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "长1.74m 宽0.83m\n自提送",
    "photos": [
@@ -378,7 +378,7 @@
    "category": "家电",
    "price": 500,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "10/08 下午4点自提 雫石",
    "note": "放床头的宜家小台灯，灯罩有一点点摔坏了",
    "photos": [
