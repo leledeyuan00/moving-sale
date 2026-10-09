@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imv0kzhopfo7eh",
+   "name": "小路由器",
+   "category": "",
+   "price": "",
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "Router",
+   "photos": [
+    "photos/mv0kzgtknhk9b.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imv0k7jxmys8us",
    "name": "小桌子，带储存空间",
    "category": "",
