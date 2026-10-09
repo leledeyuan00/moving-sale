@@ -10,6 +10,35 @@
  },
  "items": [
   {
+   "id": "imv0k7jxmys8us",
+   "name": "小桌子，带储存空间",
+   "category": "",
+   "price": 100,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "",
+   "photos": [
+    "photos/mv0k7hy8xgbyt.jpg",
+    "photos/mv0k7i4prhsva.jpg"
+   ],
+   "example": false
+  },
+  {
+   "id": "imv0k6qsr8p4np",
+   "name": "立式镜子",
+   "category": "家具",
+   "price": 0,
+   "origPrice": "",
+   "status": "reserved",
+   "statusNote": "",
+   "note": "",
+   "photos": [
+    "photos/mv0k6nrjy9fof.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imuxtm09xfkvtz",
    "name": "小熨斗",
    "category": "家电",
@@ -392,7 +421,7 @@
    "category": "",
    "price": 1000,
    "origPrice": 100000,
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "轮子不好用了。躺起来还蛮舒服的。自提送～",
    "photos": [
