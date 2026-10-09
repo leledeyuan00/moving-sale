@@ -142,7 +142,7 @@
    "category": "家电",
    "price": 100,
    "origPrice": "",
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "冬日必备，用了4年了",
    "photos": [
@@ -201,7 +201,7 @@
    "category": "",
    "price": 0,
    "origPrice": 0,
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "一番くじ抽的",
    "photos": [
