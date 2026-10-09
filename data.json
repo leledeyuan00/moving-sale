@@ -10,6 +10,20 @@
  },
  "items": [
   {
+   "id": "imv0l664tphc35",
+   "name": "电视柜",
+   "category": "家具",
+   "price": 0,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "放43寸电视的",
+   "photos": [
+    "photos/mv0l64dx7ryp1.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imv0l4oewd3wdk",
    "name": "DJI 手机云台",
    "category": "",
