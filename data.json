@@ -30,7 +30,7 @@
    "category": "家具",
    "price": 0,
    "origPrice": "",
-   "status": "available",
+   "status": "sold",
    "statusNote": "",
    "note": "放43寸电视的",
    "photos": [
@@ -58,7 +58,7 @@
    "category": "",
    "price": 100,
    "origPrice": "",
-   "status": "available",
+   "status": "sold",
    "statusNote": "",
    "note": "Router",
    "photos": [
@@ -478,7 +478,7 @@
    "category": "",
    "price": 1000,
    "origPrice": 100000,
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "轮子不好用了。躺起来还蛮舒服的。自提送～",
    "photos": [
