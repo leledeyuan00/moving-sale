@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imv1t8wqu1elo0",
+   "name": "小书柜",
+   "category": "家具",
+   "price": "",
+   "origPrice": "",
+   "status": "reserved",
+   "statusNote": "",
+   "note": "",
+   "photos": [
+    "photos/mv1t8umxlr0b7.jpg",
+    "photos/mv1t8uwg2d9z3.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imv11svv6z3yii",
    "name": "电子钢琴",
    "category": "",
