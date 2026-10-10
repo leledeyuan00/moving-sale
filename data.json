@@ -87,7 +87,7 @@
    "category": "家具",
    "price": 0,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "",
    "photos": [
@@ -101,7 +101,7 @@
    "category": "家电",
    "price": 100,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "买了几年，但是就用过一次。一开始想拿来做研究来着……",
    "photos": [
@@ -157,7 +157,7 @@
    "category": "家电",
    "price": 100,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "冬日必备，用了4年了",
    "photos": [
@@ -201,7 +201,7 @@
    "category": "",
    "price": 500,
    "origPrice": "",
-   "status": "available",
+   "status": "reserved",
    "statusNote": "",
    "note": "两对窗帘。长的2m高，短的1.38m配白色纱帘。",
    "photos": [
@@ -288,7 +288,7 @@
    "category": "家电",
    "price": 4000,
    "origPrice": 30000,
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "10/10 五桥 送货上门 ChapLer",
    "note": "47L洗衣机 Amazon上买的，用了3年。最好能来自提……",
    "photos": [
