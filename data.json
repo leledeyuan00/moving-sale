@@ -30,7 +30,7 @@
    "category": "家具",
    "price": "",
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "",
    "photos": [
@@ -74,7 +74,7 @@
    "category": "",
    "price": 500,
    "origPrice": 20000,
-   "status": "available",
+   "status": "sold",
    "statusNote": "",
    "note": "DJI OM5, 2022年买的，用了4年啦，下个dji app应该就可以连手机了",
    "photos": [
@@ -102,7 +102,7 @@
    "category": "",
    "price": 100,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "",
    "photos": [
@@ -173,7 +173,7 @@
    "category": "家电",
    "price": 100,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "10/10 下午4-5点自提 早安午安勿忘晚安",
    "note": "冬日必备",
    "photos": [
@@ -231,7 +231,7 @@
    "category": "",
    "price": 500,
    "origPrice": "",
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "两对窗帘。长的2m高，短的1.38m配白色纱帘。",
    "photos": [
@@ -246,7 +246,7 @@
    "category": "",
    "price": 0,
    "origPrice": 0,
-   "status": "reserved",
+   "status": "sold",
    "statusNote": "",
    "note": "一番くじ抽的",
    "photos": [
@@ -551,7 +551,7 @@
    "category": "家具",
    "price": 500,
    "origPrice": 8000,
-   "status": "available",
+   "status": "sold",
    "statusNote": "",
    "note": "Muji摇头小风扇，挺不错",
    "photos": [
