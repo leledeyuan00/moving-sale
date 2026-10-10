@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imv1yue3h2lc10",
+   "name": "双板滑雪板",
+   "category": "",
+   "price": 0,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "一侧的固定器前年滑的时候摔坏了。",
+   "photos": [
+    "photos/mv1yubts2ayxp.jpg",
+    "photos/mv1yuc0n01xiv.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imv1t8wqu1elo0",
    "name": "小书柜",
    "category": "家具",
