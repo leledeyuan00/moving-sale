@@ -10,6 +10,21 @@
  },
  "items": [
   {
+   "id": "imv3dbyxf55huy",
+   "name": "大沙发",
+   "category": "家具",
+   "price": 0,
+   "origPrice": "",
+   "status": "available",
+   "statusNote": "",
+   "note": "",
+   "photos": [
+    "photos/mv3dbwupp1m7t.jpg",
+    "photos/mv3dbx13ydfrv.jpg"
+   ],
+   "example": false
+  },
+  {
    "id": "imv1yue3h2lc10",
    "name": "双板滑雪板",
    "category": "",
