@@ -60,7 +60,7 @@
    "category": "",
    "price": 500,
    "origPrice": "",
-   "status": "available",
+   "status": "sold",
    "statusNote": "",
    "note": "踏板是反向踏板。（川内自取）请联系该微信：go_ZYL",
    "photos": [
@@ -377,7 +377,7 @@
    "category": "家具",
    "price": 0,
    "origPrice": "",
-   "status": "available",
+   "status": "sold",
    "statusNote": "",
    "note": "也挺舒服的，但是因为是继承过来的，能自提或者找王师傅来拉一下就免费送了",
    "photos": [
@@ -552,7 +552,7 @@
    "category": "家电",
    "price": 500,
    "origPrice": "",
-   "status": "available",
+   "status": "sold",
    "statusNote": "",
    "note": "",
    "photos": [
@@ -596,7 +596,7 @@
    "category": "家具",
    "price": 1000,
    "origPrice": "",
-   "status": "available",
+   "status": "sold",
    "statusNote": "",
    "note": "送货1000，来我家自提免费……",
    "photos": [
